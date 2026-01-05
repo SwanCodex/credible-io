@@ -1,3 +1,4 @@
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
 from pydantic import BaseModel
 
@@ -7,24 +8,41 @@ app = FastAPI()
 class TextInput(BaseModel):
     content: str
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 @app.get("/")
 def root():
     return {"message": "Credible.io backend is running"}
 
 @app.post("/verify")
 def verify_text(data: TextInput):
-    text = data.content
+    text = data.content.lower()
 
-    # VERY SIMPLE credibility logic (for MVP)
     score = 80
-    explanation = "Content appears factual and well-structured."
+    reasons = []
+    flags = []
 
-    # If text sounds too confident but gives no evidence
-    if "definitely" in text.lower() or "always" in text.lower():
+    if "definitely" in text or "always" in text:
         score -= 20
-        explanation = "Overconfident language detected without supporting evidence."
+        flags.append("Overconfident language")
+        reasons.append("Uses absolute terms without evidence.")
+
+    if len(text.split()) < 10:
+        score -= 10
+        flags.append("Insufficient context")
+        reasons.append("Text is too short to verify reliably.")
 
     return {
         "credibility_score": score,
-        "explanation": explanation
+        "flags_detected": flags,
+        "explanation": reasons,
+        "final_verdict": (
+            "Likely Reliable" if score >= 70 else "Needs Verification"
+        )
     }
+

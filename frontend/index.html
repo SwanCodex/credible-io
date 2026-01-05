@@ -15,7 +15,7 @@ placeholder="Paste educational content here..."></textarea>
 <button onclick="verifyText()">Verify Credibility</button>
 
 <h3>Result</h3>
-<p id="result"></p>
+<div id="result"></div>
 
 <script>
 async function verifyText() {
@@ -31,9 +31,20 @@ async function verifyText() {
 
     const data = await response.json();
 
-    document.getElementById("result").innerHTML =
-        "Credibility Score: " + data.credibility_score +
-        "<br>Explanation: " + data.explanation;
+    let output = `
+        <strong>Credibility Score:</strong> ${data.credibility_score}<br>
+        <strong>Final Verdict:</strong> ${data.final_verdict}<br><br>
+        <strong>Flags Detected:</strong>
+        <ul>
+            ${data.flags_detected.map(f => `<li>${f}</li>`).join("")}
+        </ul>
+        <strong>Explanation:</strong>
+        <ul>
+            ${data.explanation.map(e => `<li>${e}</li>`).join("")}
+        </ul>
+    `;
+
+    document.getElementById("result").innerHTML = output;
 }
 </script>
 
