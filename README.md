@@ -28,5 +28,12 @@ Combatting Misinformation in Educational Content (TECHFIESTA’26 – ED002)
 - Database: Firebase
 - Extension: JavaScript (Manifest V3)
 
+## Future Scope
+- Browser extension for real-time verification
+- PDF and image-based content analysis
+- Citation validation using trusted databases
+- Multilingual verification
+- Teacher-governed trust network
+
 ## License
 This project is licensed under the MIT License.
