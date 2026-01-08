@@ -13,11 +13,54 @@ placeholder="Paste educational content here..."></textarea>
 <br><br>
 
 <button onclick="verifyText()">Verify Credibility</button>
+<button onclick="analyzeBias()">Analyze Bias & Perspective</button>
+<button onclick="getXAIInfo()">Get XAI & Intuitive Info</button>
+<button onclick="analyzeKnowledgeGaps()">Analyze Knowledge Gaps</button>
+
+<div style="margin-top: 30px; border-top: 1px solid #ccc; padding-top: 10px;">
+    <h3>Settings</h3>
+    <label for="apiKey">Gemini API Key:</label>
+    <input type="password" id="apiKey" placeholder="Enter your Gemini API Key">
+    <button onclick="saveApiKey()">Save API Key</button>
+    <p id="settingsMessage" style="color: green;"></p>
+</div>
 
 <h3>Result</h3>
 <div id="result"></div>
 
 <script>
+async function saveApiKey() {
+    const apiKey = document.getElementById("apiKey").value;
+    if (!apiKey) {
+        alert("Please enter an API Key");
+        return;
+    }
+
+    try {
+        const response = await fetch("http://127.0.0.1:8000/settings/api-key", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ api_key: apiKey })
+        });
+
+        const data = await response.json();
+        
+        if (response.ok) {
+            document.getElementById("settingsMessage").innerText = data.message;
+            document.getElementById("settingsMessage").style.color = "green";
+        } else {
+            document.getElementById("settingsMessage").innerText = "Error saving key";
+            document.getElementById("settingsMessage").style.color = "red";
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        document.getElementById("settingsMessage").innerText = "Failed to connect to backend";
+        document.getElementById("settingsMessage").style.color = "red";
+    }
+}
+
 async function verifyText() {
     const text = document.getElementById("inputText").value;
 
@@ -52,6 +95,176 @@ async function verifyText() {
             ${data.verification_suggestion}
         `;
     }
+    
+    document.getElementById("result").innerHTML = output;
+}
+
+async function analyzeBias() {
+    const text = document.getElementById("inputText").value;
+
+    const response = await fetch("http://127.0.0.1:8000/analyze-bias", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ content: text })
+    });
+
+    const data = await response.json();
+
+    let output = `
+        <h4>Bias & Perspective Analysis</h4>
+        <strong>Bias Score:</strong> ${data.bias_score}/100<br>
+        <strong>Bias Level:</strong> ${data.bias_level}<br>
+        <strong>Objectivity Rating:</strong> ${data.objectivity_rating}/100<br>
+        <strong>Overall Assessment:</strong> ${data.overall_assessment}<br><br>
+
+        <strong>Bias Flags:</strong>
+        <ul>
+            ${data.bias_flags.map(f => `<li>${f}</li>`).join("") || "<li>No bias flags detected</li>"}
+        </ul>
+
+        <strong>Perspective Issues:</strong>
+        <ul>
+            ${data.perspective_issues.map(p => `<li>${p}</li>`).join("") || "<li>No perspective issues detected</li>"}
+        </ul>
+
+        <strong>Emotional Language Detected:</strong>
+        <ul>
+            ${data.emotional_language_detected.map(e => `<li>${e}</li>`).join("") || "<li>None</li>"}
+        </ul>
+
+        <strong>Recommendations:</strong>
+        <ul>
+            ${data.recommendations.map(r => `<li>${r}</li>`).join("") || "<li>Content appears balanced</li>"}
+        </ul>
+    `;
+    
+    document.getElementById("result").innerHTML = output;
+}
+
+async function getXAIInfo() {
+    const text = document.getElementById("inputText").value;
+
+    const response = await fetch("http://127.0.0.1:8000/xai-info", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ content: text })
+    });
+
+    const data = await response.json();
+
+    let output = `
+        <h4>XAI & Intuitive Info (Explainable AI)</h4>
+        <strong>Overall Confidence:</strong> ${data.overall_confidence}%<br>
+        <strong>Confidence Level:</strong> ${data.confidence_level}<br>
+        <strong>Explanation:</strong> ${data.confidence_explanation}<br><br>
+
+        <strong>Confidence Breakdown:</strong>
+        <ul>
+            <li>Text Length: ${data.confidence_breakdown.text_length}%</li>
+            <li>Source Available: ${data.confidence_breakdown.source_available}%</li>
+            <li>Clear Structure: ${data.confidence_breakdown.clear_structure}%</li>
+            <li>Technical Terms: ${data.confidence_breakdown.technical_terms}%</li>
+        </ul>
+
+        <strong>Analysis Methods Used:</strong>
+        <ul>
+            ${data.analysis_methods_used.map(m => `<li>${m}</li>`).join("")}
+        </ul>
+
+        <strong>Decision Factors:</strong>
+        <ul>
+            <li>Text Length Weight: ${data.decision_factors.text_length_weight}</li>
+            <li>Source Credibility Weight: ${data.decision_factors.source_credibility_weight}</li>
+            <li>Structural Clarity Weight: ${data.decision_factors.structural_clarity_weight}</li>
+            <li>Technical Vocabulary Weight: ${data.decision_factors.technical_vocabulary_weight}</li>
+        </ul>
+
+        <strong>Known Limitations:</strong>
+        <ul>
+            ${data.known_limitations.map(l => `<li>${l}</li>`).join("")}
+        </ul>
+
+        <strong>Alternative Interpretations:</strong>
+        <ul>
+            ${data.alternative_interpretations.map(a => `<li>${a}</li>`).join("")}
+        </ul>
+
+        <strong>User Guidance:</strong>
+        <ul>
+            ${data.user_guidance.map(g => `<li>${g}</li>`).join("")}
+        </ul>
+
+        <strong>Transparency Note:</strong><br>
+        <em>${data.transparency_note}</em>
+    `;
+    
+    document.getElementById("result").innerHTML = output;
+}
+
+async function analyzeKnowledgeGaps() {
+    const text = document.getElementById("inputText").value;
+
+    const response = await fetch("http://127.0.0.1:8000/knowledge-gaps", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ content: text })
+    });
+
+    const data = await response.json();
+
+    let output = `
+        <h4>Knowledge Gap Mapping</h4>
+        <strong>Completeness Score:</strong> ${data.completeness_score}/100<br>
+        <strong>Assessment:</strong> ${data.completeness_assessment}<br><br>
+
+        <strong>Knowledge Gaps Identified:</strong>
+        <ul>
+            ${data.knowledge_gaps_identified.map(g => `<li>${g}</li>`).join("") || "<li>No significant gaps detected</li>"}
+        </ul>
+
+        <strong>Missing Context:</strong>
+        <ul>
+            ${data.missing_context.map(m => `<li>${m}</li>`).join("") || "<li>No missing context detected</li>"}
+        </ul>
+
+        <strong>Prerequisite Knowledge:</strong>
+        <ul>
+            ${data.prerequisite_knowledge.map(p => `<li>${p}</li>`).join("") || "<li>No specific prerequisites identified</li>"}
+        </ul>
+
+        <strong>Related Topics to Explore:</strong>
+        <ul>
+            ${data.related_topics_to_explore.map(t => `<li>${t}</li>`).join("")}
+        </ul>
+
+        <strong>Depth Analysis:</strong>
+        <ul>
+            <li>Level: ${data.depth_analysis.level}</li>
+            <li>Score: ${data.depth_analysis.score}/100</li>
+            <li>Description: ${data.depth_analysis.description}</li>
+        </ul>
+
+        <strong>Coverage Gaps:</strong>
+        <ul>
+            ${data.coverage_gaps.map(c => `<li>${c}</li>`).join("") || "<li>No coverage gaps detected</li>"}
+        </ul>
+
+        <strong>Learning Path Recommendations:</strong>
+        <ol>
+            ${data.learning_path_recommendations.map(l => `<li><strong>${l.focus}:</strong> ${l.action}</li>`).join("")}
+        </ol>
+
+        <strong>Actionable Recommendations:</strong>
+        <ul>
+            ${data.actionable_recommendations.map(r => `<li>${r}</li>`).join("") || "<li>Content appears comprehensive</li>"}
+        </ul>
+    `;
     
     document.getElementById("result").innerHTML = output;
 }
