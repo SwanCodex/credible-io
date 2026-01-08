@@ -20,12 +20,27 @@ Credible.io addresses this problem by:
 
 ## Key Features
 
+### Multilingual Verification & Translation
+- **Automatic Language Detection**: Instantly identifies the language of input text (e.g., Hindi, Marathi, Spanish).
+- **Cross-Lingual Fact-Checking**: Translates content internally to English for deep verification against trusted sources.
+- **Dual-Language Reporting**: 
+    - Display verdicts in both the original language and English.
+    - Provides specific explanations with **quoted text from the original language** alongside English reasoning.
+
+### Advanced AI Analysis (Powered by Gemini)
+- **Bias & Perspective Analysis**: Detects emotional language, political leaning, and potential objectivity issues.
+- **Knowledge Gap Mapping**: Identifies missing context, prerequisites, and suggests a learning path.
+- **XAI (Explainable AI)**: breaks down why the AI made a decision, boosting transparency.
+
 ### Explainable Credibility Verification
-- Generates a heuristic credibility score
-- Detects linguistic risk patterns such as:
+- Generates a credibility score based on factual accuracy and linguistic patterns.
+- Detects risk patterns such as:
   - Overconfident or absolute language
   - Insufficient contextual information
-- Provides clear explanations instead of black-box decisions
+- Provides clear explanations instead of black-box decisions.
+
+### Settings & Configuration
+- **Dynamic API Key Management**: Securely configure your Gemini API Key directly from the frontend settings.
 
 ### Browser Extension (Manifest V3)
 - Extracts educational content directly from webpages
@@ -39,36 +54,32 @@ Credible.io addresses this problem by:
 - Displays a before-and-after comparison using a non-intrusive overlay
 - Ensures transparency by explaining every repair
 
-### Ethical and Transparent AI Design
-- No silent rewriting of content
-- No blind trust in sources
-- Users remain in control of what they read and reuse
-
 ---
 
 ## System Architecture
 
-Browser Extension
+Browser Extension / Frontend
 |
 v
-Content Script (Text Extraction)
+FastAPI Backend (Language Detection)
 |
 v
-Background Service Worker
+Google Gemini API (Translation & Verification)
 |
 v
-FastAPI Backend
-| |
-/verify /repair
+Response Formatting (Dual-Language Explanations)
+|
+v
+User Interface
 
 ---
 
 ## Technology Stack
 
-- Backend: Python, FastAPI
+- Backend: Python, FastAPI, Google Generative AI (Gemini)
 - Frontend (Web): HTML, JavaScript
 - Browser Extension: Chrome Manifest V3
-- AI Logic: Explainable, rule-based heuristics (MVP)
+- AI Logic: Gemini 3.0 Flash Preview / 1.5 Flash
 - Architecture: Modular and extensible
 
 ---
@@ -77,13 +88,24 @@ FastAPI Backend
 
 ### Backend Setup
 
+1. **Install Dependencies**:
 ```bash
-pip install fastapi uvicorn
-uvicorn main:app --reload
+pip install fastapi uvicorn google-generativeai python-dotenv
 ```
 
-Backend Runs at: http://127.0.0.1:8000
-Interactive API documentation: http://127.0.0.1:8000/docs
+2. **Run the Server**:
+```bash
+uvicorn backend.main:app --reload
+```
+
+3. **Configure API Key**:
+   - Open `frontend/index.html` in your browser.
+   - Scroll to the **Settings** section.
+   - Enter your Google Gemini API Key and click **Save**.
+
+4. **Verify**:
+   - Backend Runs at: http://127.0.0.1:8000
+   - Swagger Documentation: http://127.0.0.1:8000/docs
 
 ## Project Status
 

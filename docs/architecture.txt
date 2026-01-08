@@ -1,13 +1,16 @@
 User (Browser)
    |
    v
-Frontend (HTML + JS)
+Frontend / Extension
    |
    v
-FastAPI Backend
+FastAPI Backend (Language Detection & Prompt Engineering)
+   |
+   v
+Google Gemini API (Fact-Checking & Translation)
    |
    v
 Credibility Logic + Explainability
    |
    v
-Score + Flags + Explanation
+Score + Flags + Dual-Language Explanation
