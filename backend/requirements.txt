@@ -1,0 +1,21 @@
+# EduVeritas Backend Dependencies
+
+# Core Framework
+fastapi==0.104.1
+uvicorn==0.24.0
+python-multipart==0.0.6
+pydantic==2.5.0
+
+# PDF Processing
+pdfplumber==0.10.3
+
+# API Requests
+requests==2.31.0
+
+# Text Matching for Citation Validation
+fuzzywuzzy==0.18.0
+python-Levenshtein==0.23.0
+
+# Optional: For advanced text processing (future enhancement)
+# spacy==3.7.2
+# transformers==4.35.0

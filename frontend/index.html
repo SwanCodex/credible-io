@@ -1,61 +1,1376 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-    <title>Credible.io</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduVeritas - Educational Content Verifier</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-gradient-start: #667eea;
+            --bg-gradient-mid: #764ba2;
+            --bg-gradient-end: #f093fb;
+            --container-bg: white;
+            --text-primary: #333;
+            --text-secondary: #666;
+            --border-color: #e0e0e0;
+            --card-bg: #f8f9fa;
+            --input-bg: white;
+            --input-border: #e0e0e0;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --upload-zone-bg-start: #667eea05;
+            --upload-zone-bg-end: #f093fb10;
+            --upload-zone-hover-start: #667eea10;
+            --upload-zone-hover-end: #f093fb15;
+            --upload-zone-dragover-start: #667eea20;
+            --upload-zone-dragover-end: #f093fb25;
+        }
+
+        [data-theme="dark"] {
+            --bg-gradient-start: #1a1a2e;
+            --bg-gradient-mid: #16213e;
+            --bg-gradient-end: #0f1922;
+            --container-bg: #1e1e2f;
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --border-color: #2d2d44;
+            --card-bg: #252538;
+            --input-bg: #2a2a3e;
+            --input-border: #3a3a52;
+            --shadow-color: rgba(0, 0, 0, 0.5);
+            --upload-zone-bg-start: #667eea15;
+            --upload-zone-bg-end: #f093fb20;
+            --upload-zone-hover-start: #667eea25;
+            --upload-zone-hover-end: #f093fb30;
+            --upload-zone-dragover-start: #667eea35;
+            --upload-zone-dragover-end: #f093fb40;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-mid) 50%, var(--bg-gradient-end) 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background 0.3s ease;
+        }
+
+        .container {
+            background: var(--container-bg);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px var(--shadow-color);
+            max-width: 1100px;
+            width: 100%;
+            overflow: hidden;
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            padding: 40px;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
+            padding: 8px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .theme-toggle span {
+            font-size: 1.2em;
+        }
+
+        .theme-toggle-text {
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .edu-vault {
+            margin-bottom: 30px;
+        }
+
+        .edu-vault h2 {
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            text-align: center;
+            transition: color 0.3s ease;
+        }
+
+        .tab-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+            overflow-x: auto;
+            transition: border-color 0.3s ease;
+        }
+
+        .tab {
+            padding: 15px 30px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .tab:hover {
+            color: #f093fb;
+        }
+
+        .tab.active {
+            color: #f093fb;
+            border-bottom-color: #f093fb;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .upload-zone {
+            border: 3px dashed #f093fb;
+            border-radius: 15px;
+            padding: 50px 30px;
+            text-align: center;
+            background: linear-gradient(135deg, var(--upload-zone-bg-start) 0%, var(--upload-zone-bg-end) 100%);
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .upload-zone:hover {
+            background: linear-gradient(135deg, var(--upload-zone-hover-start) 0%, var(--upload-zone-hover-end) 100%);
+            border-color: #764ba2;
+        }
+
+        .upload-zone.dragover {
+            background: linear-gradient(135deg, var(--upload-zone-dragover-start) 0%, var(--upload-zone-dragover-end) 100%);
+            border-color: #764ba2;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 4em;
+            margin-bottom: 15px;
+        }
+
+        .upload-zone h3 {
+            color: #764ba2;
+            margin-bottom: 10px;
+            font-size: 1.4em;
+        }
+
+        .upload-zone p {
+            color: var(--text-secondary);
+            font-size: 1em;
+            transition: color 0.3s ease;
+        }
+
+        .file-info {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            display: none;
+            transition: background 0.3s ease;
+        }
+
+        .file-info.show {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            background: var(--input-bg);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            transition: background 0.3s ease;
+        }
+
+        .file-details {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-primary);
+            transition: color 0.3s ease;
+        }
+
+        .file-details small {
+            color: var(--text-secondary) !important;
+        }
+
+        .file-icon {
+            font-size: 1.5em;
+        }
+
+        .remove-file {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .remove-file:hover {
+            background: #c82333;
+        }
+
+        .input-section {
+            margin-bottom: 20px;
+        }
+
+        .input-section label {
+            display: block;
+            font-size: 1.1em;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            transition: color 0.3s ease;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid var(--input-border);
+            border-radius: 10px;
+            font-size: 1em;
+            font-family: inherit;
+            resize: vertical;
+            transition: all 0.3s;
+            background: var(--input-bg);
+            color: var(--text-primary);
+        }
+
+        textarea::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.6;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #f093fb;
+        }
+
+        .button-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .verify-btn {
+            background: linear-gradient(135deg, #667eea 0%, #f093fb 100%);
+            color: white;
+            border: none;
+            padding: 15px 50px;
+            font-size: 1.1em;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(240, 147, 251, 0.4);
+        }
+
+        .verify-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(240, 147, 251, 0.6);
+        }
+
+        .verify-btn:active {
+            transform: translateY(0);
+        }
+
+        .verify-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+
+        .loading p {
+            color: var(--text-secondary);
+            transition: color 0.3s ease;
+        }
+
+        .spinner {
+            border: 4px solid var(--input-border);
+            border-top: 4px solid #f093fb;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .result-section {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .trust-meter {
+            text-align: center;
+            padding: 30px;
+            background: var(--card-bg);
+            border-radius: 15px;
+            margin-bottom: 30px;
+            transition: background 0.3s ease;
+        }
+
+        .trust-meter h2 {
+            color: var(--text-primary);
+            transition: color 0.3s ease;
+        }
+
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 20px auto;
+            font-size: 2.5em;
+            font-weight: 700;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            position: relative;
+            color: var(--text-primary);
+            background: var(--input-bg);
+            transition: color 0.3s ease, background 0.3s ease;
+        }
+
+        .score-circle::before {
+            content: '';
+            position: absolute;
+            inset: -5px;
+            border-radius: 50%;
+            padding: 5px;
+            background: linear-gradient(135deg, var(--score-color) 0%, var(--score-color-dark) 100%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+        }
+
+        .score-label {
+            font-size: 0.4em;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-top: 5px;
+            transition: color 0.3s ease;
+        }
+
+        .verdict {
+            font-size: 1.3em;
+            font-weight: 600;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .verdict.verified {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        [data-theme="dark"] .verdict.verified {
+            background: #1a4d2e;
+            color: #4ade80;
+        }
+
+        .verdict.caution {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        [data-theme="dark"] .verdict.caution {
+            background: #4d3800;
+            color: #fbbf24;
+        }
+
+        .verdict.unreliable {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        [data-theme="dark"] .verdict.unreliable {
+            background: #4d1a1f;
+            color: #f87171;
+        }
+
+        .info-card {
+            background: var(--input-bg);
+            border-left: 4px solid #f093fb;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: background 0.3s ease;
+        }
+
+        .info-card h3 {
+            color: #764ba2;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        [data-theme="dark"] .info-card h3 {
+            color: #f093fb;
+        }
+
+        .info-card p {
+            color: var(--text-secondary);
+        }
+
+        .flag-item {
+            padding: 10px 15px;
+            margin: 8px 0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+        }
+
+        .flag-item.verified {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        [data-theme="dark"] .flag-item.verified {
+            background: #1a4d2e;
+            color: #4ade80;
+        }
+
+        .flag-item.warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        [data-theme="dark"] .flag-item.warning {
+            background: #4d3800;
+            color: #fbbf24;
+        }
+
+        .flag-item.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        [data-theme="dark"] .flag-item.error {
+            background: #4d1a1f;
+            color: #f87171;
+        }
+
+        .flag-icon {
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+
+        .risk-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .risk-high {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        [data-theme="dark"] .risk-high {
+            background: #4d1a1f;
+            color: #f87171;
+        }
+
+        .risk-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        [data-theme="dark"] .risk-medium {
+            background: #4d3800;
+            color: #fbbf24;
+        }
+
+        .risk-low {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        [data-theme="dark"] .risk-low {
+            background: #1a4d2e;
+            color: #4ade80;
+        }
+
+        .citation-stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 15px;
+            background: var(--card-bg);
+            border-radius: 10px;
+            min-width: 120px;
+            margin: 5px;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: 700;
+            color: #764ba2;
+        }
+
+        [data-theme="dark"] .stat-number {
+            color: #f093fb;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        .suggestion-box {
+            background: linear-gradient(135deg, var(--upload-zone-bg-start) 0%, var(--upload-zone-bg-end) 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            transition: background 0.3s ease;
+        }
+
+        .suggestion-box h3 {
+            color: #764ba2;
+            margin-bottom: 10px;
+        }
+
+        [data-theme="dark"] .suggestion-box h3 {
+            color: #f093fb;
+        }
+
+        .suggestion-box p {
+            color: var(--text-primary);
+            transition: color 0.3s ease;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .verify-btn {
+                padding: 12px 40px;
+                font-size: 1em;
+            }
+
+            .tab {
+                padding: 12px 20px;
+                font-size: 0.9em;
+            }
+
+            .upload-zone {
+                padding: 30px 20px;
+            }
+
+            .theme-toggle {
+                top: 10px;
+                right: 10px;
+                padding: 6px 15px;
+            }
+
+            .theme-toggle-text {
+                display: none;
+            }
+
+            .citation-stats {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
+
 <body>
+    <div class="container">
+        <div class="header">
+            <div class="theme-toggle" onclick="toggleTheme()">
+                <span id="themeIcon">🌙</span>
+                <span class="theme-toggle-text" id="themeText">Mode</span>
+            </div>
+            <h1>🛡️ EduVeritas</h1>
+            <p>Educational Content Credibility Verifier</p>
+        </div>
 
-<h2>Credible.io – Educational Content Verifier</h2>
+        <div class="content">
+            <div class="edu-vault">
+                <h2>📚 Edu-Vault Workspace</h2>
 
-<textarea id="inputText" rows="6" cols="60"
-placeholder="Paste educational content here..."></textarea>
+                <div class="tab-container">
+                    <button class="tab active" onclick="switchTab(event, 'text')">📝 Direct Paste</button>
+                    <button class="tab" onclick="switchTab(event, 'document')">📄 PDF/Document</button>
+                    <button class="tab" onclick="switchTab(event, 'image')">🖼️ Image/Screenshot</button>
+                </div>
 
-<br><br>
+                <div id="textTab" class="tab-content active">
+                    <div class="input-section">
+                        <label for="inputText">Paste Content to Verify</label>
+                        <textarea id="inputText" rows="8"
+                            placeholder="Paste text here... (articles, AI responses, social media posts, viral messages, etc.)"></textarea>
+                    </div>
+                </div>
 
-<button onclick="verifyText()">Verify Credibility</button>
+                <div id="documentTab" class="tab-content">
+                    <div class="upload-zone" id="docUploadZone"
+                        onclick="document.getElementById('docFileInput').click()">
+                        <div class="upload-icon">📄</div>
+                        <h3>Upload PDF or Document</h3>
+                        <p>Drag and drop your file here, or click to browse</p>
+                        <p style="font-size: 0.9em; margin-top: 10px; color: #999;">Supports: PDF, DOC, DOCX, TXT</p>
+                    </div>
+                    <input type="file" id="docFileInput" accept=".pdf,.doc,.docx,.txt"
+                        onchange="handleFileSelect(event, 'document')">
+                    <div id="docFileInfo" class="file-info"></div>
+                </div>
 
-<h3>Result</h3>
-<div id="result"></div>
+                <div id="imageTab" class="tab-content">
+                    <div class="upload-zone" id="imgUploadZone"
+                        onclick="document.getElementById('imgFileInput').click()">
+                        <div class="upload-icon">🖼️</div>
+                        <h3>Upload Image or Screenshot</h3>
+                        <p>Drag and drop your image here, or click to browse</p>
+                        <p style="font-size: 0.9em; margin-top: 10px; color: #999;">Supports: JPG, PNG, JPEG, GIF</p>
+                    </div>
+                    <input type="file" id="imgFileInput" accept="image/*" onchange="handleFileSelect(event, 'image')">
+                    <div id="imgFileInfo" class="file-info"></div>
+                </div>
+            </div>
 
-<script>
-async function verifyText() {
-    const text = document.getElementById("inputText").value;
+            <div class="button-container">
+                <button class="verify-btn" onclick="verifyContent()">Verify Credibility</button>
+            </div>
 
-    const response = await fetch("http://127.0.0.1:8000/verify", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ content: text })
-    });
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p style="margin-top: 15px;">Analyzing content...</p>
+            </div>
 
-    const data = await response.json();
+            <div class="result-section" id="resultSection">
+                <div class="trust-meter">
+                    <h2>Trust Score</h2>
+                    <div class="score-circle" id="scoreCircle">
+                        <div>
+                            <span id="scoreValue">0</span>
+                            <div class="score-label">/ 100</div>
+                        </div>
+                    </div>
+                    <div class="verdict" id="verdict"></div>
+                </div>
 
-    let output = `
-        <strong>Credibility Score:</strong> ${data.credibility_score}<br>
-        <strong>Final Verdict:</strong> ${data.final_verdict}<br><br>
+                <!-- Hallucination Analysis Card -->
+                <div class="info-card" id="hallucinationCard">
+                    <h3>🤖 AI Hallucination Detection<span class="risk-badge" id="riskBadge"></span></h3>
+                    <p id="hallucinationExplanation">No hallucination analysis yet. Verify content to see results.</p>
+                    <div id="hallucinationClaims"></div>
+                </div>
 
-        <strong>Flags Detected:</strong>
-        <ul>
-            ${data.flags_detected.map(f => `<li>${f}</li>`).join("")}
-        </ul>
+                <!-- Citation Analysis Card -->
+                <div class="info-card" id="citationCard">
+                    <h3>📚 Citation Validation</h3>
+                    <div class="citation-stats">
+                        <div class="stat-box">
+                            <div class="stat-number" id="citationsFound">0</div>
+                            <div class="stat-label">Citations Found</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-number" id="validCitations">0</div>
+                            <div class="stat-label">Valid Citations</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-number" id="citationQuality">-</div>
+                            <div class="stat-label">Quality Rating</div>
+                        </div>
+                    </div>
+                    <div id="citationDetails"></div>
+                </div>
 
-        <strong>Explanation:</strong>
-        <ul>
-            ${data.explanation.map(e => `<li>${e}</li>`).join("")}
-        </ul>
-    `;
+                <div class="info-card">
+                    <h3>🚩 Detected Flags</h3>
+                    <div id="flagsList"></div>
+                </div>
 
-    if (data.verification_suggestion) {
-        output += `
-            <strong>Suggested Next Step:</strong><br>
-            ${data.verification_suggestion}
-        `;
-    }
-    
-    document.getElementById("result").innerHTML = output;
-}
-</script>
+                <div class="info-card">
+                    <h3>📊 Detailed Analysis</h3>
+                    <div id="explanationList"></div>
+                </div>
 
+                <div class="suggestion-box" id="suggestionBox" style="display: none;">
+                    <h3>💡 Suggested Next Step</h3>
+                    <p id="suggestionText"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTab = 'text';
+        let uploadedFiles = {
+            document: null,
+            image: null
+        };
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+
+            updateThemeButton(newTheme);
+        }
+
+        function updateThemeButton(theme) {
+            const themeIcon = document.getElementById('themeIcon');
+            const themeText = document.getElementById('themeText');
+
+            if (theme === 'dark') {
+                themeIcon.textContent = '☀️';
+                themeText.textContent = '';
+            } else {
+                themeIcon.textContent = '🌙';
+                themeText.textContent = '';
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeButton(savedTheme);
+        });
+
+        function switchTab(event, tabName) {
+            currentTab = tabName;
+
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+
+        ['docUploadZone', 'imgUploadZone'].forEach(zoneId => {
+            const zone = document.getElementById(zoneId);
+
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                zone.classList.add('dragover');
+            });
+
+            zone.addEventListener('dragleave', () => {
+                zone.classList.remove('dragover');
+            });
+
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.classList.remove('dragover');
+
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    const type = zoneId === 'docUploadZone' ? 'document' : 'image';
+                    handleFileDrop(files[0], type);
+                }
+            });
+        });
+
+        function handleFileDrop(file, type) {
+            if (type === 'document') {
+                const input = document.getElementById('docFileInput');
+                const dt = new DataTransfer();
+                dt.items.add(file);
+                input.files = dt.files;
+                handleFileSelect({ target: { files: [file] } }, 'document');
+            } else {
+                const input = document.getElementById('imgFileInput');
+                const dt = new DataTransfer();
+                dt.items.add(file);
+                input.files = dt.files;
+                handleFileSelect({ target: { files: [file] } }, 'image');
+            }
+        }
+
+        function handleFileSelect(event, type) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            uploadedFiles[type] = file;
+
+            const infoDiv = document.getElementById(type + 'FileInfo');
+            const fileIcon = type === 'document' ? '📄' : '🖼️';
+            const fileSize = (file.size / 1024).toFixed(2);
+
+            infoDiv.innerHTML = `
+                <div class="file-item">
+                    <div class="file-details">
+                        <span class="file-icon">${fileIcon}</span>
+                        <div>
+                            <strong>${file.name}</strong><br>
+                            <small>${fileSize} KB</small>
+                        </div>
+                    </div>
+                    <button class="remove-file" onclick="removeFile('${type}')">Remove</button>
+                </div>
+            `;
+            infoDiv.classList.add('show');
+        }
+
+        function removeFile(type) {
+            uploadedFiles[type] = null;
+            document.getElementById(type + 'FileInfo').classList.remove('show');
+            document.getElementById(type + 'FileInput').value = '';
+        }
+
+        async function verifyContent() {
+            let content = '';
+            let contentType = currentTab;
+
+            if (currentTab === 'text') {
+                content = document.getElementById("inputText").value.trim();
+                if (!content) {
+                    alert("Please paste some content to verify!");
+                    return;
+                }
+            } else if (currentTab === 'document') {
+                if (!uploadedFiles.document) {
+                    alert("Please upload a document first!");
+                    return;
+                }
+
+                // Check if it's a PDF for citation validation
+                if (uploadedFiles.document.name.toLowerCase().endsWith('.pdf')) {
+                    // Route to PDF citation validator
+                    await validatePDFCitations(uploadedFiles.document);
+                    return;
+                }
+
+                content = `Document analysis: ${uploadedFiles.document.name}`;
+                alert("Document upload detected! In production, this would extract and analyze the full document text.");
+            } else if (currentTab === 'image') {
+                if (!uploadedFiles.image) {
+                    alert("Please upload an image first!");
+                    return;
+                }
+                content = `Image text extraction: ${uploadedFiles.image.name}`;
+                alert("Image upload detected! In production, this would use OCR to extract text from the image.");
+            }
+
+            document.getElementById("loading").style.display = "block";
+            document.getElementById("resultSection").style.display = "none";
+            document.querySelector(".verify-btn").disabled = true;
+
+            try {
+                const response = await fetch("http://127.0.0.1:8000/verify", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        content: content,
+                        content_type: contentType
+                    })
+                });
+
+                const data = await response.json();
+
+                document.getElementById("loading").style.display = "none";
+                document.querySelector(".verify-btn").disabled = false;
+
+                displayResults(data);
+            } catch (error) {
+                document.getElementById("loading").style.display = "none";
+                document.querySelector(".verify-btn").disabled = false;
+                alert("Error: Could not connect to the verification server. Please ensure the backend is running at http://127.0.0.1:8000");
+                console.error("Verification error:", error);
+            }
+        }
+
+        async function validatePDFCitations(file) {
+            // Show loading with special message for PDF
+            const loadingDiv = document.getElementById("loading");
+            loadingDiv.style.display = "block";
+            loadingDiv.innerHTML = `
+                <div class="spinner"></div>
+                <p style="margin-top: 15px;">Extracting and validating citations...</p>
+                <p style="font-size: 0.9em; color: var(--text-secondary);">This may take 10-30 seconds</p>
+            `;
+            document.getElementById("resultSection").style.display = "none";
+            document.querySelector(".verify-btn").disabled = true;
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const response = await fetch("http://127.0.0.1:8000/api/validate-pdf-citations", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                // Reset loading div
+                loadingDiv.innerHTML = `
+                    <div class="spinner"></div>
+                    <p style="margin-top: 15px;">Analyzing content...</p>
+                `;
+                loadingDiv.style.display = "none";
+                document.querySelector(".verify-btn").disabled = false;
+
+                if (data.success) {
+                    displayCitationResults(data);
+                } else {
+                    alert("Error: " + (data.error || "Failed to validate citations"));
+                }
+
+            } catch (error) {
+                loadingDiv.innerHTML = `
+                    <div class="spinner"></div>
+                    <p style="margin-top: 15px;">Analyzing content...</p>
+                `;
+                loadingDiv.style.display = "none";
+                document.querySelector(".verify-btn").disabled = false;
+                alert("Error: Could not connect to the citation validation server. Please ensure the backend is running.");
+                console.error("Citation validation error:", error);
+            }
+        }
+
+        function displayResults(data) {
+            const score = data.credibility_score;
+            const verdict = data.final_verdict;
+
+            animateScore(score);
+
+            let color, colorDark, verdictClass;
+            if (score >= 70) {
+                color = "#28a745";
+                colorDark = "#1e7e34";
+                verdictClass = "verified";
+            } else if (score >= 40) {
+                color = "#ffc107";
+                colorDark = "#e0a800";
+                verdictClass = "caution";
+            } else {
+                color = "#dc3545";
+                colorDark = "#bd2130";
+                verdictClass = "unreliable";
+            }
+
+            const scoreCircle = document.getElementById("scoreCircle");
+            scoreCircle.style.setProperty('--score-color', color);
+            scoreCircle.style.setProperty('--score-color-dark', colorDark);
+
+            const verdictEl = document.getElementById("verdict");
+            verdictEl.textContent = verdict;
+            verdictEl.className = `verdict ${verdictClass}`;
+
+            // Display Hallucination Analysis
+            if (data.hallucination_analysis) {
+                const halluCard = document.getElementById("hallucinationCard");
+                const riskBadge = document.getElementById("riskBadge");
+                const halluExp = document.getElementById("hallucinationExplanation");
+                const halluClaims = document.getElementById("hallucinationClaims");
+
+                halluCard.style.display = "block";
+
+                if (data.hallucination_analysis.hallucination_detected) {
+                    riskBadge.textContent = data.hallucination_analysis.risk_level + " Risk";
+                    riskBadge.className = "risk-badge";
+                    riskBadge.style.display = "inline-block";
+
+                    if (data.hallucination_analysis.risk_level === "High") {
+                        riskBadge.classList.add("risk-high");
+                    } else if (data.hallucination_analysis.risk_level === "Medium") {
+                        riskBadge.classList.add("risk-medium");
+                    } else {
+                        riskBadge.classList.add("risk-low");
+                    }
+
+                    halluExp.textContent = data.hallucination_analysis.explanation;
+
+                    if (data.hallucination_analysis.flagged_claims.length > 0) {
+                        halluClaims.innerHTML = data.hallucination_analysis.flagged_claims.map(claim =>
+                            `<div class="flag-item error"><span class="flag-icon">⚠️</span>${claim}</div>`
+                        ).join("");
+                    } else {
+                        halluClaims.innerHTML = "";
+                    }
+                } else {
+                    riskBadge.textContent = "No Risk";
+                    riskBadge.className = "risk-badge risk-low";
+                    riskBadge.style.display = "inline-block";
+                    halluExp.textContent = data.hallucination_analysis.explanation;
+                    halluClaims.innerHTML = "";
+                }
+            } else {
+                document.getElementById("hallucinationCard").style.display = "block";
+                document.getElementById("hallucinationExplanation").textContent = "Hallucination analysis unavailable.";
+            }
+
+            // Display Citation Analysis
+            if (data.citation_analysis) {
+                const citCard = document.getElementById("citationCard");
+                citCard.style.display = "block";
+
+                document.getElementById("citationsFound").textContent = data.citation_analysis.citations_found;
+                document.getElementById("validCitations").textContent = data.citation_analysis.valid_citations;
+                document.getElementById("citationQuality").textContent = data.citation_analysis.citation_quality;
+
+                const citDetails = document.getElementById("citationDetails");
+
+                if (data.citation_analysis.citations_found === 0) {
+                    citDetails.innerHTML = '<p style="color: var(--text-secondary); margin-top: 10px;">⚠️ No citations found in the content. Consider adding references to support claims.</p>';
+                } else {
+                    let detailsHTML = '<div style="margin-top: 15px;">';
+
+                    if (data.citation_analysis.details && data.citation_analysis.details.length > 0) {
+                        data.citation_analysis.details.forEach(detail => {
+                            if (detail.type === "URL") {
+                                const statusClass = detail.status === "Valid" ? "verified" :
+                                    detail.status === "Questionable" ? "warning" : "error";
+                                detailsHTML += `<div class="flag-item ${statusClass}">
+                                    <span class="flag-icon">🔗</span>
+                                    <div style="flex: 1;">
+                                        <div><strong>${detail.source}</strong></div>
+                                        <small>Authority: ${detail.authority} | Status: ${detail.status}</small>
+                                    </div>
+                                </div>`;
+                            } else if (detail.type === "Academic" || detail.type === "Scholarly") {
+                                detailsHTML += `<div class="flag-item verified">
+                                    <span class="flag-icon">📖</span>
+                                    ${detail.type}: ${detail.count} reference(s) - ${detail.status}
+                                </div>`;
+                            }
+                        });
+                    }
+
+                    detailsHTML += '</div>';
+                    citDetails.innerHTML = detailsHTML;
+
+                    if (data.citation_analysis.invalid_citations && data.citation_analysis.invalid_citations.length > 0) {
+                        let invalidHTML = '<div style="margin-top: 10px;"><strong style="color: var(--text-secondary);">⚠️ Questionable Sources:</strong>';
+                        data.citation_analysis.invalid_citations.forEach(invalid => {
+                            invalidHTML += `<div class="flag-item warning">
+                                <span class="flag-icon">⚠️</span>${invalid.reason}
+                            </div>`;
+                        });
+                        invalidHTML += '</div>';
+                        citDetails.innerHTML += invalidHTML;
+                    }
+                }
+            } else {
+                document.getElementById("citationCard").style.display = "block";
+                document.getElementById("citationDetails").innerHTML = '<p style="color: var(--text-secondary);">Citation analysis unavailable.</p>';
+            }
+
+            // Display flags
+            const flagsList = document.getElementById("flagsList");
+            if (data.flags_detected && data.flags_detected.length > 0) {
+                flagsList.innerHTML = data.flags_detected.map(flag => {
+                    const flagClass = flag.toLowerCase().includes('verified') || flag.toLowerCase().includes('accurate') ? 'verified' :
+                        flag.toLowerCase().includes('warning') || flag.toLowerCase().includes('caution') || flag.toLowerCase().includes('medium') ? 'warning' : 'error';
+                    const icon = flagClass === 'verified' ? '✅' : flagClass === 'warning' ? '⚠️' : '❌';
+                    return `<div class="flag-item ${flagClass}"><span class="flag-icon">${icon}</span>${flag}</div>`;
+                }).join("");
+            } else {
+                flagsList.innerHTML = '<p>No specific flags detected.</p>';
+            }
+
+            // Display explanation
+            const explanationList = document.getElementById("explanationList");
+            if (data.explanation && data.explanation.length > 0) {
+                explanationList.innerHTML = data.explanation.map(exp =>
+                    `<div class="flag-item" style="background: var(--card-bg); color: var(--text-primary);"><span class="flag-icon">📝</span>${exp}</div>`
+                ).join("");
+            } else {
+                explanationList.innerHTML = '<p>No additional analysis available.</p>';
+            }
+
+            // Display suggestion
+            if (data.verification_suggestion) {
+                document.getElementById("suggestionBox").style.display = "block";
+                document.getElementById("suggestionText").textContent = data.verification_suggestion;
+            } else {
+                document.getElementById("suggestionBox").style.display = "none";
+            }
+
+            document.getElementById("resultSection").style.display = "block";
+            document.getElementById("resultSection").scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function displayCitationResults(data) {
+            // Display citation validation results from PDF
+            const summary = data.summary;
+            const score = summary.average_quality_score;
+
+            // Animate the score
+            animateScore(score);
+
+            // Set score circle colors
+            let color, colorDark, verdictClass;
+            if (score >= 85) {
+                color = "#28a745";
+                colorDark = "#1e7e34";
+                verdictClass = "verified";
+            } else if (score >= 70) {
+                color = "#3b82f6";
+                colorDark = "#2563eb";
+                verdictClass = "verified";
+            } else if (score >= 50) {
+                color = "#ffc107";
+                colorDark = "#e0a800";
+                verdictClass = "caution";
+            } else {
+                color = "#dc3545";
+                colorDark = "#bd2130";
+                verdictClass = "unreliable";
+            }
+
+            const scoreCircle = document.getElementById("scoreCircle");
+            scoreCircle.style.setProperty('--score-color', color);
+            scoreCircle.style.setProperty('--score-color-dark', colorDark);
+
+            // Set verdict
+            const verdictEl = document.getElementById("verdict");
+            verdictEl.textContent = `Citation Quality: ${summary.overall_grade}`;
+            verdictEl.className = `verdict ${verdictClass}`;
+
+            // Hide hallucination card for PDF citation validation
+            document.getElementById("hallucinationCard").style.display = "none";
+
+            // Display Citation Analysis
+            const citCard = document.getElementById("citationCard");
+            citCard.style.display = "block";
+
+            document.getElementById("citationsFound").textContent = summary.total_citations;
+            document.getElementById("validCitations").textContent = summary.verified;
+
+            // Display grade with color
+            const gradeDisplay = summary.overall_grade;
+            let gradeColor = "#28a745";
+            if (gradeDisplay.startsWith('A')) gradeColor = "#28a745";
+            else if (gradeDisplay.startsWith('B')) gradeColor = "#3b82f6";
+            else if (gradeDisplay.startsWith('C')) gradeColor = "#ffc107";
+            else if (gradeDisplay.startsWith('D') || gradeDisplay === 'F') gradeColor = "#dc3545";
+
+            document.getElementById("citationQuality").innerHTML = `<span style="color: ${gradeColor}; font-weight: bold;">${gradeDisplay}</span>`;
+
+            // Display citation summary (NO detailed breakdown as requested)
+            const citDetails = document.getElementById("citationDetails");
+            let detailsHTML = '<div style="margin-top: 15px;">';
+
+            // Summary statistics
+            detailsHTML += `
+                <div class="flag-item verified" style="margin-bottom: 10px;">
+                    <span class="flag-icon">✅</span>
+                    <div style="flex: 1;">
+                        <strong>Verified Citations: ${summary.verified} / ${summary.total_citations}</strong><br>
+                        <small>Verification Rate: ${summary.verification_rate}%</small>
+                    </div>
+                </div>
+            `;
+
+            if (summary.ghost_sources > 0) {
+                detailsHTML += `
+                    <div class="flag-item error" style="margin-bottom: 10px;">
+                        <span class="flag-icon">❌</span>
+                        <div style="flex: 1;">
+                            <strong>Ghost Sources: ${summary.ghost_sources}</strong><br>
+                            <small>Citations not found in any academic database</small>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Grade distribution
+            if (summary.grade_distribution && Object.keys(summary.grade_distribution).length > 0) {
+                detailsHTML += `
+                    <div style="margin-top: 15px; padding: 15px; background: var(--card-bg); border-radius: 10px;">
+                        <strong style="color: var(--text-primary);">Grade Distribution:</strong><br>
+                        <div style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 10px;">
+                `;
+
+                for (const [grade, count] of Object.entries(summary.grade_distribution)) {
+                    let badgeColor = "#28a745";
+                    if (grade.startsWith('A')) badgeColor = "#28a745";
+                    else if (grade.startsWith('B')) badgeColor = "#3b82f6";
+                    else if (grade.startsWith('C')) badgeColor = "#ffc107";
+                    else badgeColor = "#dc3545";
+
+                    detailsHTML += `
+                        <span style="background: ${badgeColor}20; color: ${badgeColor}; padding: 5px 12px; border-radius: 15px; font-weight: 600; font-size: 0.9em;">
+                            ${grade}: ${count}
+                        </span>
+                    `;
+                }
+
+                detailsHTML += `
+                        </div>
+                    </div>
+                `;
+            }
+
+            detailsHTML += '</div>';
+            citDetails.innerHTML = detailsHTML;
+
+            // Display flags
+            const flagsList = document.getElementById("flagsList");
+            let flagsHTML = '';
+
+            if (summary.ghost_sources > 0) {
+                flagsHTML += `<div class="flag-item error"><span class="flag-icon">❌</span>${summary.ghost_sources} ghost source(s) detected</div>`;
+            }
+            if (summary.low_quality_count > 0) {
+                flagsHTML += `<div class="flag-item warning"><span class="flag-icon">⚠️</span>${summary.low_quality_count} low-quality citation(s)</div>`;
+            }
+            if (summary.verification_rate >= 80) {
+                flagsHTML += `<div class="flag-item verified"><span class="flag-icon">✅</span>High verification rate (${summary.verification_rate}%)</div>`;
+            }
+
+            flagsList.innerHTML = flagsHTML || '<p>No specific flags detected.</p>';
+
+            // Display explanation/recommendations
+            const explanationList = document.getElementById("explanationList");
+            if (summary.recommendations && summary.recommendations.length > 0) {
+                explanationList.innerHTML = summary.recommendations.map(rec =>
+                    `<div class="flag-item" style="background: var(--card-bg); color: var(--text-primary);"><span class="flag-icon">💡</span>${rec}</div>`
+                ).join("");
+            } else {
+                explanationList.innerHTML = '<p>No additional recommendations.</p>';
+            }
+
+            // Display suggestion
+            if (summary.recommendations && summary.recommendations.length > 0) {
+                document.getElementById("suggestionBox").style.display = "block";
+                document.getElementById("suggestionText").textContent = summary.recommendations[0];
+            } else {
+                document.getElementById("suggestionBox").style.display = "none";
+            }
+
+            document.getElementById("resultSection").style.display = "block";
+            document.getElementById("resultSection").scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function animateScore(targetScore) {
+            const scoreEl = document.getElementById("scoreValue");
+            let currentScore = 0;
+            const increment = targetScore / 50;
+            const interval = setInterval(() => {
+                currentScore += increment;
+                if (currentScore >= targetScore) {
+                    currentScore = targetScore;
+                    clearInterval(interval);
+                }
+                scoreEl.textContent = Math.round(currentScore);
+            }, 20);
+        }
+
+        document.getElementById("inputText").addEventListener("keydown", function (e) {
+            if (e.ctrlKey && e.key === "Enter") {
+                verifyContent();
+            }
+        });
+    </script>
 </body>
+
 </html>
